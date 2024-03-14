@@ -153,7 +153,7 @@ private suspend fun processOutgoingContent(request: HttpRequestData, body: Outgo
     return true
 }
 
-@OptIn(InternalAPI::class, ExperimentalStdlibApi::class)
+@OptIn(InternalAPI::class)
 internal suspend fun readResponse(
     requestTime: GMTDate,
     request: HttpRequestData,
@@ -190,6 +190,7 @@ internal suspend fun readResponse(
                 val coroutineScope = CoroutineScope(callContext + CoroutineName("Response"))
                 val httpBodyParser = coroutineScope.writer(autoFlush = true) {
                     parseHttpBody(version, contentLength, transferEncoding, connectionType, input, channel)
+                    input.cancel()
                 }
                 httpBodyParser.channel
             }

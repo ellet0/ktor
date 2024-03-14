@@ -108,9 +108,7 @@ class DeflaterReadChannelTest : CoroutineScope {
         }
 
         testReadChannel(text, asyncOf(text))
-        println("1")
         testWriteChannel(text, asyncOf(text))
-        println("2")
     }
 
     @Test
@@ -139,7 +137,6 @@ class DeflaterReadChannelTest : CoroutineScope {
         launch {
             val deflatedChannel = (channel as ByteWriteChannel).deflated()
             src.copyAndClose(deflatedChannel)
-            println("Copy finished")
         }
 
         val result = channel.toInputStream().ungzip().reader().readText()
@@ -160,7 +157,6 @@ class DeflaterReadChannelTest : CoroutineScope {
                 try {
                     src.copyAndClose(deflateInputChannel!!)
                 } catch (_: Exception) {
-                    println("IO First")
                 }
             }
 

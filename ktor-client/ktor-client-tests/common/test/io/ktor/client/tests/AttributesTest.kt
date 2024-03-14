@@ -19,7 +19,6 @@ class AttributesTest : ClientLoader(Int.MAX_VALUE) {
         config {
             install("attr-test") {
                 receivePipeline.intercept(HttpReceivePipeline.After) {
-                    println("Intercepting")
                     val attr = it.call.request.attributes[AttributeKey<String>(attrName)]
 
                     assertEquals("test-data", attr)
@@ -28,7 +27,6 @@ class AttributesTest : ClientLoader(Int.MAX_VALUE) {
         }
 
         test { client ->
-            println("Client: $client")
             val response = client.get("$TEST_SERVER/content/hello") {
                 setAttributes {
                     put(
@@ -38,12 +36,7 @@ class AttributesTest : ClientLoader(Int.MAX_VALUE) {
                 }
             }
 
-            println("Response: $response")
-
             val body = response.body<String>()
-
-            println("Done")
-
             assertEquals("hello", body)
         }
     }

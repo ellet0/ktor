@@ -10,7 +10,9 @@ import io.ktor.http.*
 import io.ktor.http.cio.*
 import io.ktor.util.date.*
 import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import kotlin.coroutines.*
+import kotlin.use
 
 internal class WinHttpResponseData(
     val statusCode: Int,

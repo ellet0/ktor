@@ -90,15 +90,14 @@ internal class Endpoint(
         deliveryPoint.send(task)
     }
 
-    @OptIn(InternalAPI::class)
     private suspend fun makeDedicatedRequest(
         request: HttpRequestData,
         callContext: CoroutineContext
     ): HttpResponseData {
         try {
             val connection = connect(request)
-            val input = this@Endpoint.mapEngineExceptions(connection.input, request)
-            val originOutput = this@Endpoint.mapEngineExceptions(connection.output, request)
+            val input = connection.input
+            val originOutput = connection.output
 
             val output = originOutput.handleHalfClosed(
                 callContext,

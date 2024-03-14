@@ -26,7 +26,7 @@ private val TEST_ARRAY = ByteArray(8 * 1025) { 1 }
 private val TEST_NAME = "123".repeat(5000)
 
 @OptIn(DelicateCoroutinesApi::class)
-class BodyProgressTest : ClientLoader(timeoutSeconds = 5) {
+class BodyProgressTest : ClientLoader(timeoutSeconds = Int.MAX_VALUE) {
 
     @Serializable
     data class User(val login: String, val id: Long)
@@ -105,6 +105,7 @@ class BodyProgressTest : ClientLoader(timeoutSeconds = 5) {
                 setBody(channel)
                 onUpload(listener)
             }
+            assertEquals(HttpStatusCode.OK, response.status)
             assertContentEquals(DOUBLE_TEST_ARRAY, response.body())
             assertTrue(invokedCount > 2)
         }

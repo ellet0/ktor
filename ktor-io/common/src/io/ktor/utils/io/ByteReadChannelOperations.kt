@@ -32,12 +32,23 @@ public suspend fun ByteReadChannel.readShort(): Short {
     TODO("Not yet implemented")
 }
 
+@OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readInt(): Int {
-    TODO("Not yet implemented")
+    while (availableForRead < 4 && awaitContent()) {
+    }
+
+    if (availableForRead < 4) throw EOFException("Not enough data available")
+
+    return readBuffer.readInt()
 }
 
+@OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readLong(): Long {
-    TODO("Not yet implemented")
+    while (availableForRead < 8 && awaitContent()) {
+    }
+
+    if (availableForRead < 8) throw EOFException("Not enough data available")
+    return readBuffer.readLong()
 }
 
 @OptIn(InternalAPI::class)
@@ -169,16 +180,43 @@ public suspend fun ByteReadChannel.readByteArray(count: Int): ByteArray {
     TODO("Not yet implemented")
 }
 
+@OptIn(InternalAPI::class, InternalIoApi::class)
 public suspend fun ByteReadChannel.readRemaining(): ByteReadPacket {
-    return readBuffer()
+    val result = BytePacketBuilder()
+    while (!isClosedForRead) {
+        result.transferFrom(readBuffer)
+        awaitContent()
+    }
+
+    return result.buffer
 }
 
+@OptIn(InternalAPI::class, InternalIoApi::class)
 public suspend fun ByteReadChannel.readRemaining(max: Long): Buffer {
-    return readBuffer(max.toInt())
+    val result = BytePacketBuilder()
+    var remaining = max
+    while (!isClosedForRead && remaining > 0) {
+        if (readBuffer.remaining > remaining) {
+            remaining -= readBuffer.remaining
+            readBuffer.transferTo(result)
+        } else {
+            readBuffer.readTo(result, remaining)
+            remaining = 0
+        }
+
+        awaitContent()
+    }
+
+    return result.buffer
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteReadChannel.readAvailable(buffer: ByteArray, offset: Int = 0, length: Int = buffer.size - offset): Int {
+public suspend fun ByteReadChannel.readAvailable(
+    buffer: ByteArray,
+    offset: Int = 0,
+    length: Int = buffer.size - offset
+): Int {
+    if (readBuffer.exhausted()) awaitContent()
     return readBuffer.readAvailable(buffer, offset, length)
 }
 
@@ -230,15 +268,17 @@ public suspend fun ByteReadChannel.discardExact(value: Long) {
 public suspend fun ByteReadChannel.discard(max: Long = Long.MAX_VALUE): Long {
     var remaining = max
     while (remaining > 0 && !isClosedForRead) {
-        val count = minOf(remaining, readBuffer.remaining).toInt()
-        readBuffer(count).close()
+        if (availableForRead == 0) awaitContent()
+        val count = minOf(remaining, readBuffer.remaining)
+        readBuffer.discard(count)
+
         remaining -= count
     }
 
     return max - remaining
 }
 
-@OptIn(InternalAPI::class, InternalIoApi::class)
+@OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readUTF8LineTo(out: Appendable, max: Int): Boolean {
     if (readBuffer.exhausted()) awaitContent()
     if (isClosedForRead) return false

@@ -48,12 +48,16 @@ public fun ByteReadPacket.readAvailable(out: Buffer): Int {
 @OptIn(InternalIoApi::class)
 public fun ByteReadPacket.copy(): ByteReadPacket = buffer.copy()
 
+@OptIn(InternalIoApi::class)
 public fun ByteReadPacket.readShortLittleEndian(): Short {
-    TODO()
+    return buffer.readShortLe()
 }
 
+@OptIn(InternalIoApi::class)
 public fun ByteReadPacket.discard(count: Long = Long.MAX_VALUE): Long {
-    TODO()
+    val countToDiscard = minOf(count, remaining)
+    buffer.skip(countToDiscard)
+    return countToDiscard
 }
 
 public fun ByteReadPacket.forEach(block: (byte: Byte) -> Unit) {

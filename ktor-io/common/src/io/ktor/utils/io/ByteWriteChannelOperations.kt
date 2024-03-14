@@ -27,38 +27,45 @@ public fun ByteWriteChannel.writeInt(value: Int) {
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeLong(value: Long) {
+public suspend fun ByteWriteChannel.writeLong(value: Long) {
     writeBuffer.writeLong(value)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeByteArray(array: ByteArray) {
+public suspend fun ByteWriteChannel.writeByteArray(array: ByteArray) {
     writeBuffer.write(array)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeSource(source: Source) {
+public suspend fun ByteWriteChannel.writeSource(source: Source) {
     writeBuffer.transferFrom(source)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeString(value: String) {
+public suspend fun ByteWriteChannel.writeString(value: String) {
     writeBuffer.writeText(value)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeFully(value: ByteArray, offset: Int = 0, length: Int = value.size - offset) {
+public suspend fun ByteWriteChannel.writeFully(value: ByteArray, offset: Int = 0, length: Int = value.size - offset) {
     writeBuffer.write(value, offset, offset + length)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeBuffer(value: Source) {
+public suspend fun ByteWriteChannel.writeBuffer(value: Source) {
     writeBuffer.transferFrom(value)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteWriteChannel.writeStringUtf8(value: String) {
+public suspend fun ByteWriteChannel.writeStringUtf8(value: String) {
     writeBuffer.writeText(value)
+    flush()
 }
 
 @OptIn(InternalAPI::class)
@@ -118,7 +125,6 @@ public fun CoroutineScope.writer(
         } catch (cause: Throwable) {
             channel.cancel(cause)
         } finally {
-            println("$channel close")
             channel.flushAndClose()
         }
     }

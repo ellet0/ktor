@@ -33,6 +33,10 @@ internal class SocketWriteChannel(
     override val writeBuffer: Sink
         get() = buffer
 
+    init {
+        selectable.interestOp(SelectInterest.WRITE, true)
+    }
+
     override suspend fun flush() {
         while (!buffer.exhausted()) {
             val count = nioChannel.write(buffer)

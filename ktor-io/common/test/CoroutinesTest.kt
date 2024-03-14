@@ -18,7 +18,6 @@ class CoroutinesTest {
         }.channel
 
         assertEquals(42, channel.readByte())
-        println("done")
     }
 
     @Test

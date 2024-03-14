@@ -138,7 +138,6 @@ class RequestProducerTest {
                 delay(100)
                 writeStringUtf8("x")
                 delay(100)
-                println("done")
             },
             contentType = null
         )
@@ -148,9 +147,7 @@ class RequestProducerTest {
         val ioctrl = TestIOControl()
 
         val result = async {
-            val result = encoder.channel.readRemaining().readText()
-            println("done 2: $result")
-            result
+            encoder.channel.readRemaining().readText()
         }
 
         GlobalScope.launch {
@@ -158,7 +155,6 @@ class RequestProducerTest {
                 if (ioctrl.outputSuspended) continue
                 producer.produceContent(encoder, ioctrl)
             }
-            println("done 3")
         }
 
         assertEquals("xxxxx", result.await())

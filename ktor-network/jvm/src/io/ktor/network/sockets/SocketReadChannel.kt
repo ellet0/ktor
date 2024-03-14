@@ -54,6 +54,7 @@ internal class SocketReadChannel(
     override fun cancel(cause: Throwable) {
         buffer.close()
         selectable.interestOp(SelectInterest.READ, false)
+        channel.close()
 
         if (closed != null) return
         closed = ClosedToken(IOException("Channel was cancelled", cause))

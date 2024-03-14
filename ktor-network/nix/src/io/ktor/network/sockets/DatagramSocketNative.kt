@@ -68,14 +68,6 @@ internal class DatagramSocketNative(
         sender.close()
     }
 
-    @Suppress("DEPRECATION")
-    override fun attachForReading(channel: ByteChannel): WriterJob =
-        attachForReadingImpl(channel, descriptor, selectable, selector)
-
-    @Suppress("DEPRECATION")
-    override fun attachForWriting(channel: ByteChannel): ReaderJob =
-        attachForWritingImpl(channel, descriptor, selectable, selector)
-
     private suspend fun readDatagram(): Datagram {
         while (true) {
             val datagram = tryReadDatagram()
@@ -121,5 +113,13 @@ internal class DatagramSocketNative(
                 packet,
                 address.toSocketAddress()
             )
+    }
+
+    override fun attachForReading(): ByteReadChannel {
+        TODO("Not yet implemented")
+    }
+
+    override fun attachForWriting(): ByteWriteChannel {
+        TODO("Not yet implemented")
     }
 }

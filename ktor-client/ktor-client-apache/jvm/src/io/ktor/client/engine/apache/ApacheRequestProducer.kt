@@ -53,7 +53,6 @@ internal class ApacheRequestProducer(
         is OutgoingContent.ReadChannelContent -> body.readFrom()
         is OutgoingContent.WriteChannelContent -> GlobalScope.writer(callContext, autoFlush = true) {
             body.writeTo(channel)
-            println("channel write done")
         }.channel
         is OutgoingContent.ContentWrapper -> getChannel(callContext, body.delegate())
     }
@@ -99,7 +98,7 @@ internal class ApacheRequestProducer(
             return
         }
 
-        if (result == -1) {
+        if (result == 0) {
             interestController.suspendOutput(ioctrl)
             launch(Dispatchers.Unconfined) {
                 try {

@@ -41,7 +41,7 @@ val testArrays = testSize.map {
     makeArray(it)
 }
 
-class ContentTest : ClientLoader(5 * 60) {
+class ContentTest : ClientLoader(60) {
 
     @Test
     fun testGetFormData() = clientTests {
@@ -84,7 +84,6 @@ class ContentTest : ClientLoader(5 * 60) {
             }
         }
         test { client ->
-            println(client)
             testArrays.forEach { content ->
                 val responseData = client.echo<ByteReadChannel>(content)
                 val data = responseData.readRemaining().readBytes()

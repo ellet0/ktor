@@ -63,7 +63,6 @@ internal class AwaitingSlot {
             }
 
             if (sleepCondition()) {
-                println("suspended ${it.hashCode()}")
                 suspended = true
             } else {
                 suspension.getAndSet(null)?.resume(Unit)

@@ -131,7 +131,7 @@ internal class ApacheRequestEntityProducer(
             return
         }
 
-        if (result == -1 && !waitingForContent.getAndSet(true)) {
+        if (result == 0 && !waitingForContent.getAndSet(true)) {
             launch(Dispatchers.Unconfined) {
                 try {
                     this@ApacheRequestEntityProducer.channel.awaitContent()

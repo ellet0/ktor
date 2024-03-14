@@ -58,6 +58,7 @@ internal class RawSourceChannel(
         withContext(context) {
             val result = source.readAtMostTo(buffer, Long.MAX_VALUE)
             if (result == -1L) {
+                source.close()
                 closedToken = ClosedToken(null)
             }
         }
