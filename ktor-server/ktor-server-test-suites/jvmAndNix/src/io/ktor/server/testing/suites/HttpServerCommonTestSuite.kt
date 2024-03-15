@@ -572,17 +572,22 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
         createAndStartServer {
             route("/timed") {
                 post {
-                    val byteStream = ByteChannel(autoFlush = true)
+                    val byteStream: ByteWriteChannel = ByteChannel(autoFlush = true)
                     launch(Dispatchers.Unconfined) {
-                        byteStream.writePacket(call.receiveChannel().readRemaining())
-                        byteStream.close(null)
+                        val channel = call.receiveChannel()
+                        val packet = channel.readRemaining()
+                        println("packet ${packet.remaining}")
+                        assertEquals(5, packet.remaining)
+                        println("channel $channel")
+                        byteStream.writePacket(packet)
+                        byteStream.flushAndClose()
                     }
                     call.respond(object : OutgoingContent.ReadChannelContent() {
                         override val status: HttpStatusCode = HttpStatusCode.OK
                         override val contentType: ContentType = ContentType.Text.Plain
                         override val headers: Headers = Headers.Empty
                         override val contentLength: Long = 5
-                        override fun readFrom() = byteStream
+                        override fun readFrom() = byteStream as ByteReadChannel
                     })
                 }
             }
@@ -603,6 +608,7 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
 
                 val content = ByteArray(5) { it.toByte() }
                 requestBody.writeFully(content)
+                println("write fully done")
                 requestBody.close(null)
 
                 assertContentEquals(channel.readRemaining().readBytes(), content)

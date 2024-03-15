@@ -6,6 +6,7 @@ package io.ktor.utils.io
 
 import io.ktor.utils.io.core.*
 import kotlinx.io.*
+import kotlinx.io.bytestring.*
 import kotlinx.io.unsafe.*
 import java.nio.*
 import java.nio.channels.*
@@ -27,16 +28,60 @@ public suspend fun ByteReadChannel.readAvailable(buffer: ByteBuffer): Int {
     return readBuffer.readAtMostTo(buffer)
 }
 
+public fun ByteString(buffer: ByteBuffer): ByteString {
+    val array = ByteArray(buffer.remaining())
+    buffer.mark()
+    buffer.get(array)
+    buffer.reset()
+    return ByteString(array)
+}
+
 public suspend fun ByteReadChannel.copyTo(channel: ReadableByteChannel): Long {
     TODO("Not yet implemented")
 }
 
-public fun ByteReadChannel.readUntilDelimiter(delimiter: ByteBuffer, out: ByteBuffer): Int {
-    TODO("Not yet implemented")
+@OptIn(InternalAPI::class)
+public suspend fun ByteReadChannel.readUntilDelimiter(delimiter: ByteString, out: ByteBuffer): Int {
+    val initial = out.remaining()
+    while (!isClosedForRead && out.hasRemaining()) {
+        if (availableForRead == 0) {
+            awaitContent()
+            continue
+        }
+
+        val index = readBuffer.indexOf(delimiter)
+        if (index != -1L) {
+            readBuffer.readAtMostTo(out)
+            continue
+        }
+
+        val count = minOf(out.remaining(), index.toInt())
+        val limit = out.limit()
+
+        out.limit(minOf(out.limit(), out.position() + count))
+        readBuffer.readAtMostTo(out)
+        out.limit(limit)
+        break
+    }
+
+    return initial - out.remaining()
 }
 
-public fun ByteReadChannel.skipDelimiter(delimiter: ByteBuffer) {
-    TODO("Not yet implemented")
+public suspend fun ByteReadChannel.readUntilDelimiter(delimiter: ByteBuffer, out: ByteBuffer): Int {
+    return readUntilDelimiter(ByteString(delimiter), out)
+}
+
+public suspend fun ByteReadChannel.skipDelimiter(delimiter: ByteBuffer) {
+    skipDelimiter(ByteString(delimiter))
+}
+
+public suspend fun ByteReadChannel.skipDelimiter(delimiter: ByteString) {
+    for (i in 0 until delimiter.size) {
+        val byte = readByte()
+        if (byte != delimiter[i]) {
+            throw IllegalStateException("Delimiter is not found")
+        }
+    }
 }
 
 @OptIn(InternalAPI::class)

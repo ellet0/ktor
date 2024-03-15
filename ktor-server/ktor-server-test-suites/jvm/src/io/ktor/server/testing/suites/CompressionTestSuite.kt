@@ -18,6 +18,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.test.base.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.debug.*
 import java.io.*
 import java.util.zip.*
 import kotlin.test.*
@@ -29,6 +31,12 @@ abstract class CompressionTestSuite<TEngine : ApplicationEngine, TConfiguration 
     @OptIn(InternalAPI::class)
     @Test
     fun testLocalFileContentWithCompression() {
+        DebugProbes.install()
+        GlobalScope.launch {
+            delay(5000)
+            DebugProbes.dumpCoroutines()
+        }
+
         val file = loadTestFile()
         testLog.trace("test file is $file")
 

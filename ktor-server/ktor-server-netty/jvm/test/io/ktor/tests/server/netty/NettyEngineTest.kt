@@ -14,7 +14,6 @@ import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.test.base.*
-import io.ktor.server.testing.*
 import io.ktor.server.testing.suites.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*

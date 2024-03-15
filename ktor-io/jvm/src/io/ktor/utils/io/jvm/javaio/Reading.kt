@@ -37,7 +37,7 @@ public fun InputStream.toByteReadChannel(
 
 internal class RawSourceChannel(
     private val source: RawSource,
-    private val context: CoroutineContext
+    private val parent: CoroutineContext
 ) : ByteReadChannel {
     private var closedToken: ClosedToken? = null
     private val buffer = Buffer()
@@ -48,6 +48,9 @@ internal class RawSourceChannel(
     override val isClosedForRead: Boolean
         get() = closedToken != null && buffer.exhausted()
 
+    val job = Job()
+    val coroutineContext = parent + job + CoroutineName("RawSourceChannel")
+
     @InternalAPI
     override val readBuffer: Source
         get() = buffer
@@ -55,9 +58,10 @@ internal class RawSourceChannel(
     override suspend fun awaitContent(): Boolean {
         closedCause?.let { throw it }
 
-        withContext(context) {
+        withContext(coroutineContext) {
             val result = source.readAtMostTo(buffer, Long.MAX_VALUE)
             if (result == -1L) {
+                job.complete()
                 source.close()
                 closedToken = ClosedToken(null)
             }
@@ -68,6 +72,7 @@ internal class RawSourceChannel(
 
     override fun cancel(cause: Throwable) {
         if (closedToken != null) return
+        job.cancel("Job was cancelled", cause)
         source.close()
         closedToken = ClosedToken(IOException("Channel has been cancelled", cause))
     }

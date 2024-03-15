@@ -15,7 +15,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlin.coroutines.*
 
-@Suppress("DEPRECATION")
 internal class RequestBodyHandler(
     val context: ChannelHandlerContext
 ) : ChannelInboundHandlerAdapter(), CoroutineScope {
@@ -37,7 +36,8 @@ internal class RequestBodyHandler(
                 var event = queue.tryReceive().getOrNull()
                 if (event == null) {
                     current?.flush()
-                    event = queue.receiveCatching().getOrNull()
+                    val receiveCatching = queue.receiveCatching()
+                    event = receiveCatching.getOrNull()
                 }
 
                 event ?: break

@@ -130,7 +130,7 @@ internal fun CoroutineScope.attachForReadingDirectImpl(
     }
 }
 
-private fun ByteWriteChannel.readFrom(nioChannel: ReadableByteChannel): Int {
+private suspend fun ByteWriteChannel.readFrom(nioChannel: ReadableByteChannel): Int {
     var count = 0
     write { buffer ->
         count = nioChannel.read(buffer)

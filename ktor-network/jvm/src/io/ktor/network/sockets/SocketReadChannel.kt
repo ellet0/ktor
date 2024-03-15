@@ -39,19 +39,23 @@ internal class SocketReadChannel(
             closedCause?.let { throw it }
         }
 
-        while (buffer.exhausted()) {
-            selector.select(selectable, SelectInterest.READ)
-            val count = channel.read(buffer)
+        var count = 0
+        while (count == 0) {
+            count = channel.read(buffer)
             if (count == -1) {
                 closed = CLOSED_OK
-                break
+                return false
+            }
+            if (count == 0) {
+                selector.select(selectable, SelectInterest.READ)
             }
         }
 
-        return closed != null
+        return closed == null
     }
 
     override fun cancel(cause: Throwable) {
+        println("Cancel $cause")
         buffer.close()
         selectable.interestOp(SelectInterest.READ, false)
         channel.close()

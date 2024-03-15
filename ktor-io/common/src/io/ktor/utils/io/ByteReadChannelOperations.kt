@@ -196,7 +196,7 @@ public suspend fun ByteReadChannel.readRemaining(max: Long): Buffer {
     val result = BytePacketBuilder()
     var remaining = max
     while (!isClosedForRead && remaining > 0) {
-        if (readBuffer.remaining > remaining) {
+        if (remaining >= readBuffer.remaining) {
             remaining -= readBuffer.remaining
             readBuffer.transferTo(result)
         } else {
@@ -256,8 +256,13 @@ public fun CoroutineScope.reader(
     return ReaderJob(channel, job)
 }
 
+@OptIn(InternalAPI::class)
 public suspend fun ByteReadChannel.readPacket(packet: Int): ByteReadPacket {
-    return readRemaining(packet.toLong())
+    while (readBuffer.remaining < packet && awaitContent()) {
+    }
+    val result = Buffer()
+    readBuffer.readTo(result, packet.toLong())
+    return result
 }
 
 public suspend fun ByteReadChannel.discardExact(value: Long) {

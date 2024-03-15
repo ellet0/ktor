@@ -20,12 +20,13 @@ public fun ByteWriteChannel.writeFully(value: ByteBuffer) {
 }
 
 @OptIn(SnapshotApi::class, UnsafeIoApi::class, InternalAPI::class, InternalIoApi::class)
-public fun ByteWriteChannel.write(block: (buffer: ByteBuffer) -> Unit) {
+public suspend fun ByteWriteChannel.write(block: (buffer: ByteBuffer) -> Unit) {
     UnsafeBufferAccessors.writeToTail(writeBuffer.buffer, 1) { array, startIndex, endIndex ->
         val buffer = ByteBuffer.wrap(array, startIndex, endIndex - startIndex)
         block(buffer)
         return@writeToTail buffer.position() - startIndex
     }
+    flush()
 }
 
 public fun ByteWriteChannel.writeAvailable(block: (ByteBuffer) -> Unit) {

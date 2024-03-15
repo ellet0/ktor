@@ -10,6 +10,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
+import kotlinx.io.bytestring.*
 import java.io.*
 import java.nio.*
 
@@ -194,6 +195,8 @@ public fun CoroutineScope.parseMultipart(
 }
 
 private val CrLf = ByteBuffer.wrap("\r\n".toByteArray())!!
+private val CrLfByteString = ByteString('\r'.code.toByte(), '\n'.code.toByte())
+
 private val BoundaryTrailingBuffer = ByteBuffer.allocate(8192)!!
 
 @OptIn(ExperimentalCoroutinesApi::class)
