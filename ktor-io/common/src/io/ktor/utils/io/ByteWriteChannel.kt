@@ -45,6 +45,11 @@ public fun ByteChannel.cancel() {
     cancel(IOException("Channel was cancelled"))
 }
 
+@Deprecated(
+    "Cancel without reason is deprecated. Please provide a cause for cancellation.",
+    ReplaceWith("cancel(IOException())", "kotlinx.coroutines.cancel"),
+    level = DeprecationLevel.ERROR
+)
 public fun ByteWriteChannel.cancel() {
     cancel(IOException("Channel was cancelled"))
 }

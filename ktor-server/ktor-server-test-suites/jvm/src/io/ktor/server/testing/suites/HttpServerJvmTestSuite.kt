@@ -17,6 +17,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.debug.junit5.*
 import java.net.*
 import java.nio.*
 import java.time.*
@@ -26,6 +27,7 @@ import kotlin.test.*
 import kotlin.text.toByteArray
 import kotlin.time.Duration.Companion.seconds
 
+@CoroutinesTimeout(5000)
 abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration>(
     hostFactory: ApplicationEngineFactory<TEngine, TConfiguration>
 ) : EngineTestBase<TEngine, TConfiguration>(hostFactory) {

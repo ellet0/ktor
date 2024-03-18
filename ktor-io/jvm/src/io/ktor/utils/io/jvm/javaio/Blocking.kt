@@ -60,7 +60,7 @@ public fun ByteWriteChannel.toOutputStream(): OutputStream = object : OutputStre
     }
 
     override fun flush() {
-        runBlocking { flush() }
+        runBlocking { this@toOutputStream.flush() }
     }
 
     override fun close() {

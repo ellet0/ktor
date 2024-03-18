@@ -44,8 +44,9 @@ class NettyContentTest : ContentTestSuite<NettyApplicationEngine, NettyApplicati
 class NettyHttpServerCommonTest :
     HttpServerCommonTestSuite<NettyApplicationEngine, NettyApplicationEngine.Configuration>(Netty)
 
-class NettyHttpServerJvmTest :
-    HttpServerJvmTestSuite<NettyApplicationEngine, NettyApplicationEngine.Configuration>(Netty) {
+class NettyHttpServerJvmTest : HttpServerJvmTestSuite<NettyApplicationEngine, NettyApplicationEngine.Configuration>(
+    Netty
+) {
     init {
         enableSsl = true
     }

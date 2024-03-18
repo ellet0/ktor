@@ -110,8 +110,6 @@ public class ServletUpgradeHandler : HttpUpgradeHandler, CoroutineScope {
 
             upgradeJob.complete()
             job.invokeOnCompletion {
-                inputChannel.cancel()
-                outputChannel.cancel()
                 upgradeJob.cancel()
             }
         }
