@@ -55,7 +55,6 @@ internal class SocketReadChannel(
     }
 
     override fun cancel(cause: Throwable) {
-        println("Cancel $cause")
         buffer.close()
         selectable.interestOp(SelectInterest.READ, false)
         channel.close()

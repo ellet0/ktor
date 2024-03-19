@@ -37,7 +37,6 @@ internal class NettyHttp1Handler(
     private val state = NettyHttpHandlerState(runningLimit)
 
     override fun channelActive(context: ChannelHandlerContext) {
-        println("Channel active $context")
         if (!this::responseWriter.isInitialized) {
             responseWriter = NettyHttpResponsePipeline(
                 context,
@@ -55,7 +54,6 @@ internal class NettyHttp1Handler(
     }
 
     override fun channelRead(context: ChannelHandlerContext, message: Any) {
-        println("Channel read: $context $message")
         if (message is LastHttpContent) {
             state.isCurrentRequestFullyRead.compareAndSet(expect = false, update = true)
         }
@@ -82,18 +80,15 @@ internal class NettyHttp1Handler(
                 context.fireChannelRead(message)
             }
         }
-        println("channel read done $context")
     }
 
     override fun channelInactive(context: ChannelHandlerContext) {
-        println("channel inactive  $context")
         context.pipeline().remove(NettyApplicationCallHandler::class.java)
         context.fireChannelInactive()
     }
 
     @Suppress("OverridingDeprecatedMember")
     override fun exceptionCaught(context: ChannelHandlerContext, cause: Throwable) {
-        println("exception caught $context")
         when (cause) {
             is IOException -> {
                 environment.log.debug("I/O operation failed", cause)
@@ -113,7 +108,6 @@ internal class NettyHttp1Handler(
     }
 
     override fun channelReadComplete(context: ChannelHandlerContext?) {
-        println("read complete $context")
         state.isChannelReadCompleted.compareAndSet(expect = false, update = true)
         responseWriter.flushIfNeeded()
         super.channelReadComplete(context)

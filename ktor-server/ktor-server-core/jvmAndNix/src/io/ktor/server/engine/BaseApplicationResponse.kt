@@ -137,13 +137,9 @@ public abstract class BaseApplicationResponse(
             is OutgoingContent.ReadChannelContent -> {
                 // First call user code to acquire read channel, because it could fail
                 val readChannel = content.readFrom()
-                try {
-                    // If channel is fine, commit headers and pipe data
-                    commitHeaders(content)
-                    respondFromChannel(readChannel)
-                } finally {
-                    readChannel.cancel()
-                }
+                // If channel is fine, commit headers and pipe data
+                commitHeaders(content)
+                respondFromChannel(readChannel)
             }
 
             // Do nothing, but maintain `when` exhaustiveness

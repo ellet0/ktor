@@ -4,9 +4,10 @@
 
 package io.ktor.utils.io.charsets
 
+import io.ktor.utils.io.core.*
 import kotlinx.io.*
+import kotlinx.io.bytestring.*
 import java.nio.*
-import java.nio.charset.*
 
 @Suppress("ACTUAL_CLASSIFIER_MUST_HAVE_THE_SAME_MEMBERS_AS_NON_FINAL_EXPECT_CLASSIFIER_WARNING")
 public actual typealias Charset = java.nio.charset.Charset
@@ -69,8 +70,6 @@ internal actual fun CharsetEncoder.encodeToByteArrayImpl(
     TODO()
 }
 
-// -----------------------
-
 public actual typealias CharsetDecoder = java.nio.charset.CharsetDecoder
 
 public actual val CharsetDecoder.charset: Charset get() = charset()!!
@@ -80,15 +79,9 @@ public actual fun CharsetDecoder.decode(input: Source, dst: Appendable, max: Int
         return input.readString().also { dst.append(it) }.length
     }
 
-    TODO()
-}
-
-private fun CoderResult.throwExceptionWrapped() {
-    try {
-        throwException()
-    } catch (original: java.nio.charset.MalformedInputException) {
-        throw MalformedInputException(original.message ?: "Failed to decode bytes")
-    }
+    val result = input.remaining
+    dst.append(input.readByteString().decodeToString(charset))
+    return result.toInt()
 }
 
 // ----------------------------------
@@ -103,5 +96,3 @@ actual constructor(message: String) : java.nio.charset.MalformedInputException(0
     override val message: String?
         get() = _message
 }
-
-private val EmptyByteBuffer = ByteBuffer.allocate(0)!!

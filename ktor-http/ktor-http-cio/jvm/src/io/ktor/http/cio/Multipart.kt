@@ -78,15 +78,13 @@ private suspend fun parsePreambleImpl(
     input: ByteReadChannel,
     output: BytePacketBuilder,
     limit: Long = Long.MAX_VALUE
-): Long {
-    return copyUntilBoundary(
-        "preamble/prologue",
-        boundaryPrefixed,
-        input,
-        { output.writeFully(it) },
-        limit
-    )
-}
+): Long = copyUntilBoundary(
+    "preamble/prologue",
+    boundaryPrefixed,
+    input,
+    { output.writeFully(it) },
+    limit
+)
 
 /**
  * Parse multipart part headers

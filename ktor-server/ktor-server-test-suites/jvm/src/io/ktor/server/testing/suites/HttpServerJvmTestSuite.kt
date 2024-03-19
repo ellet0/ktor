@@ -17,7 +17,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import io.ktor.utils.io.streams.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.debug.junit5.*
+import kotlinx.coroutines.debug.*
 import java.net.*
 import java.nio.*
 import java.time.*
@@ -27,7 +27,6 @@ import kotlin.test.*
 import kotlin.text.toByteArray
 import kotlin.time.Duration.Companion.seconds
 
-@CoroutinesTimeout(5000)
 abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguration : ApplicationEngine.Configuration>(
     hostFactory: ApplicationEngineFactory<TEngine, TConfiguration>
 ) : EngineTestBase<TEngine, TConfiguration>(hostFactory) {
@@ -323,6 +322,12 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
 
     @Test
     open fun testUpgrade() {
+        DebugProbes.install()
+        GlobalScope.launch {
+            delay(5000)
+//            DebugProbes.dumpCoroutines()
+        }
+
         val completed = CompletableDeferred<Unit>()
 
         createAndStartServer {
@@ -345,12 +350,15 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                                 try {
                                     val bb = ByteBuffer.allocate(8)
                                     input.readFully(bb)
+                                    assertEquals(8, bb.position())
                                     bb.flip()
                                     output.writeFully(bb)
                                     output.flushAndClose()
+                                    println("Flushed and closed")
                                     input.readRemaining().use {
                                         assertEquals(0, it.remaining)
                                     }
+                                    println("Completed")
                                     completed.complete(Unit)
                                 } catch (t: Throwable) {
                                     completed.completeExceptionally(t)

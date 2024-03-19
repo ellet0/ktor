@@ -132,6 +132,7 @@ internal suspend fun writeBody(
             chunkedJob?.join()
 
             output.closedCause?.unwrapCancellationException()?.takeIf { it !is CancellationException }?.let {
+                println("Throw $it")
                 throw it
             }
             if (closeChannel) {

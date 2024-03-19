@@ -97,15 +97,9 @@ internal class NettyHttp1ApplicationResponse constructor(
         }
 
         val job = upgrade.upgrade(upgradedReadChannel, upgradedWriteChannel, engineContext, userAppContext)
-
-        job.invokeOnCompletion {
-            upgradedWriteChannel.cancel()
-            bodyHandler.close()
-            upgradedReadChannel.cancel()
-        }
-
         (call as NettyApplicationCall).responseWriteJob.join()
         job.join()
+        bodyHandler.close()
 
         context.channel().close()
     }

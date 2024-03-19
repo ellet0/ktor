@@ -602,6 +602,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                             append("File content goes here\r\n")
                             append("--***bbb***--\r\n")
                             flush()
+                            println("Done")
                         },
                         contentType
                     )
@@ -631,7 +632,7 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                         is PartData.FormItem -> response.append("${part.name}=${part.value}\n")
                         is PartData.FileItem -> {
                             @Suppress("DEPRECATION")
-                            val lineSequence = part.streamProvider().bufferedReader().lineSequence()
+                            val lineSequence = part.provider().readRemaining().readText().lines()
                             response.append("file:${part.name},${part.originalFileName},${lineSequence.count()}\n")
                         }
 

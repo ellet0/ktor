@@ -608,7 +608,6 @@ abstract class HttpServerCommonTestSuite<TEngine : ApplicationEngine, TConfigura
 
                 val content = ByteArray(5) { it.toByte() }
                 requestBody.writeFully(content)
-                println("write fully done")
                 requestBody.close(null)
 
                 assertContentEquals(channel.readRemaining().readBytes(), content)

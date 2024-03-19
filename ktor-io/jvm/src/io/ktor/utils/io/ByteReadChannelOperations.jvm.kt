@@ -50,14 +50,13 @@ public suspend fun ByteReadChannel.readUntilDelimiter(delimiter: ByteString, out
         }
 
         val index = readBuffer.indexOf(delimiter)
-        if (index != -1L) {
+        if (index == -1L) {
             readBuffer.readAtMostTo(out)
             continue
         }
 
         val count = minOf(out.remaining(), index.toInt())
         val limit = out.limit()
-
         out.limit(minOf(out.limit(), out.position() + count))
         readBuffer.readAtMostTo(out)
         out.limit(limit)
@@ -85,7 +84,9 @@ public suspend fun ByteReadChannel.skipDelimiter(delimiter: ByteString) {
 }
 
 @OptIn(InternalAPI::class)
-public fun ByteReadChannel.readFully(buffer: ByteBuffer) {
+public suspend fun ByteReadChannel.readFully(buffer: ByteBuffer) {
+    while (availableForRead < buffer.remaining() && awaitContent()) {}
+
     readBuffer.readAtMostTo(buffer)
 }
 
