@@ -29,7 +29,7 @@ public class LookAheadSuspendSession(private val channel: ByteReadChannel) {
             result = channel.awaitContent()
         }
 
-        return result
+        return channel.readBuffer.remaining >= min
     }
 
     @OptIn(InternalAPI::class)

@@ -354,7 +354,7 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                                     bb.flip()
                                     output.writeFully(bb)
                                     output.flushAndClose()
-                                    println("Flushed and closed")
+                                    println("Flushed and closed $output")
                                     input.readRemaining().use {
                                         assertEquals(0, it.remaining)
                                     }
@@ -429,8 +429,10 @@ abstract class HttpServerJvmTestSuite<TEngine : ApplicationEngine, TConfiguratio
                     }
                     flush()
                 }
+                println("long sent")
 
                 assertEquals(0x1122334455667788L, ch.readLong())
+                println("long received")
 
                 close()
 

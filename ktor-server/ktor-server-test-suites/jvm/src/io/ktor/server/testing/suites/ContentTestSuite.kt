@@ -602,7 +602,6 @@ abstract class ContentTestSuite<TEngine : ApplicationEngine, TConfiguration : Ap
                             append("File content goes here\r\n")
                             append("--***bbb***--\r\n")
                             flush()
-                            println("Done")
                         },
                         contentType
                     )

@@ -1,5 +1,6 @@
 import io.ktor.test.dispatcher.*
 import io.ktor.utils.io.*
+import kotlinx.coroutines.*
 import kotlinx.io.*
 import kotlin.test.*
 
@@ -71,5 +72,16 @@ class ByteChannelTest {
         assertFailsWith<IOException> {
             channel.readByte()
         }
+    }
+
+    @Test
+    fun testCloseAfterAwait() = testSuspend {
+        val channel = ByteChannel()
+        val job = launch(start = CoroutineStart.UNDISPATCHED) {
+            channel.awaitContent()
+        }
+
+        channel.flushAndClose()
+        job.join()
     }
 }

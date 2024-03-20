@@ -13,16 +13,4 @@ internal class NettyDirectDecoder : ByteToMessageDecoder() {
         out.add(buf.copy())
         buf.readerIndex(buf.writerIndex())
     }
-
-    override fun channelUnregistered(ctx: ChannelHandlerContext?) {
-        super.channelUnregistered(ctx)
-    }
-
-    override fun channelInactive(ctx: ChannelHandlerContext) {
-        super.channelInactive(ctx)
-    }
-
-    override fun decodeLast(ctx: ChannelHandlerContext?, `in`: ByteBuf?, out: MutableList<Any>?) {
-        super.decodeLast(ctx, `in`, out)
-    }
 }

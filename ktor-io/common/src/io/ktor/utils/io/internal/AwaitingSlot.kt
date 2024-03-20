@@ -41,6 +41,7 @@ internal class AwaitingSlot {
      * Cancel waiter.
      */
     fun cancel(cause: Throwable?) {
+        println("cancel slot $this")
         val closeContinuation = if (cause != null) ClosedSlot(cause) else CLOSED
         val continuation = suspension.getAndSet(closeContinuation) ?: return
         if (continuation is ClosedSlot) return
@@ -48,6 +49,7 @@ internal class AwaitingSlot {
         if (cause != null) {
             continuation.resumeWithException(cause)
         } else {
+            println("Resume slot $this $continuation")
             continuation.resume(Unit)
         }
     }
