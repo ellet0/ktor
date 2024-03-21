@@ -73,15 +73,12 @@ class ChannelTest {
             source.cancel(IllegalStateException(message))
         }
 
-        try {
+        assertFailsWith<IOException> {
             val firstResult = GlobalScope.async(Dispatchers.Unconfined) {
                 first.readRemaining().readBytes()
             }
             firstResult.await()
-        } catch (cause: Throwable) {
-            println(cause)
         }
-
 
         assertFailsWith<IOException> {
             val secondResult = GlobalScope.async(Dispatchers.Unconfined) {

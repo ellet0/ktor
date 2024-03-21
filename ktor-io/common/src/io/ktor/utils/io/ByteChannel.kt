@@ -62,7 +62,6 @@ public class ByteChannel : ByteReadChannel, ByteWriteChannel {
     override suspend fun awaitContent(): Boolean {
         closedCause?.let { throw it }
 
-        println("await $this")
         if (flushBufferSize == 0 && !isClosedForRead) slot.sleepWhile { flushBufferSize == 0 && !isClosedForRead }
         moveFlushToReadBuffer()
         return _closedCause.value == null

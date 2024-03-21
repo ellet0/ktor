@@ -322,9 +322,8 @@ internal class NettyHttpResponsePipeline(
 
         channel.lookAheadSuspend {
             while (true) {
-                val buffer = request(1, 65536)
+                val buffer = request(0, 1)
                 if (buffer == null) {
-                    println("await from $channel")
                     if (!awaitAtLeast(1)) break
                     continue
                 }
@@ -354,7 +353,6 @@ internal class NettyHttpResponsePipeline(
             }
         }
 
-        println("Done")
         val lastMessage = response.prepareTrailerMessage() ?: call.prepareEndOfStreamMessage(false)
         handleLastResponseMessage(call, lastMessage, lastFuture)
     }

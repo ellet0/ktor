@@ -38,7 +38,6 @@ internal class ApacheResponseConsumer(
             } else {
                 written
             }
-
         }
 
         channel.flushWriteBuffer()

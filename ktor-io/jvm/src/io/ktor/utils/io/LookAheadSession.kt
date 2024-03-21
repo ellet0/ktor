@@ -11,14 +11,28 @@ public typealias LookAheadSession = LookAheadSuspendSession
 
 public class LookAheadSuspendSession(private val channel: ByteReadChannel) {
     private val buffer = ByteBuffer.allocate(4096)
+
+    /**
+     * Request byte buffer range skipping [skip] bytes and [atLeast] bytes length
+     * @return byte buffer for the requested range or null if it is impossible to provide such a buffer
+     *
+     * There are the following reasons for this function to return `null`:
+     * - not enough bytes available yet (should be at least `skip + atLeast` bytes available)
+     * - due to buffer fragmentation it is impossible to represent the requested range as a single byte buffer
+     * - end of stream encountered and all bytes were consumed
+     * - channel has been closed with an exception so buffer has been recycled
+     */
     @OptIn(InternalAPI::class)
-    public fun request(min: Int, max: Int): ByteBuffer? {
-        if (channel.readBuffer.remaining < min) return null
+    public fun request(skip: Int, atLeast: Int): ByteBuffer? {
+        if (channel.readBuffer.remaining < skip + atLeast) return null
         buffer.clear()
         channel.readBuffer.preview {
             it.readAvailable(buffer)
         }
         buffer.flip()
+        if (skip > 0) {
+            buffer.position(buffer.position() + skip)
+        }
         return buffer
     }
 
