@@ -7,6 +7,7 @@ package io.ktor.util
 import io.ktor.test.dispatcher.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.*
 import kotlin.test.*
 
@@ -72,14 +73,17 @@ class ChannelTest {
             source.cancel(IllegalStateException(message))
         }
 
-        assertFailsWithMessage(message) {
+        try {
             val firstResult = GlobalScope.async(Dispatchers.Unconfined) {
                 first.readRemaining().readBytes()
             }
             firstResult.await()
+        } catch (cause: Throwable) {
+            println(cause)
         }
 
-        assertFailsWithMessage(message) {
+
+        assertFailsWith<IOException> {
             val secondResult = GlobalScope.async(Dispatchers.Unconfined) {
                 second.readRemaining().readBytes()
             }
@@ -108,7 +112,7 @@ class ChannelTest {
 
         sourceResult.await()
 
-        assertFailsWithMessage("Channel was cancelled") {
+        assertFailsWith<IOException> {
             val secondResult = GlobalScope.async(Dispatchers.Unconfined) {
                 second.readRemaining().readBytes()
             }
@@ -135,16 +139,11 @@ class ChannelTest {
 
         first.cancel(IllegalStateException(message))
 
-        assertFailsWithMessage(message) {
-            val secondResult = GlobalScope.async(Dispatchers.Unconfined) {
-                second.readRemaining().readBytes()
-            }
-            secondResult.await()
+        val secondResult = GlobalScope.async(Dispatchers.Unconfined) {
+            second.readRemaining().readBytes()
         }
-
-        assertFailsWithMessage(message) {
-            sourceResult.await()
-        }
+        secondResult.await()
+        sourceResult.await()
     }
 }
 

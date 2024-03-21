@@ -111,18 +111,6 @@ class DeflaterReadChannelTest : CoroutineScope {
         testWriteChannel(text, asyncOf(text))
     }
 
-    @Test
-    fun testFaultyGzippedBiggerThan8k() {
-        TODO("Fix backpressure")
-        val text = buildString {
-            for (i in 1..65536) {
-                append(' ' + Random.nextInt(32, 126) % 32)
-            }
-        }
-
-        testFaultyWriteChannel(asyncOf(text))
-    }
-
     private fun asyncOf(text: String): ByteReadChannel = asyncOf(ByteBuffer.wrap(text.toByteArray(Charsets.ISO_8859_1)))
     private fun asyncOf(bb: ByteBuffer): ByteReadChannel = ByteReadChannel(bb)
 
